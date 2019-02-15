@@ -1,0 +1,1 @@
+All programs start with Zajedno.py
