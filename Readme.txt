@@ -1,1 +1,1 @@
-All programs start with Zajedno.py
+All programs start with Start.py
