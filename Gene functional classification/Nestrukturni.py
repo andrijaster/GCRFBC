@@ -29,30 +29,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     def sigmoid(x):
         return 1/(1+np.exp(-x))
 
-#output = pd.read_csv('pediatricSID_CA_multilabel.csv')
-#atribute = pd.read_csv('pediatricSID_CA_data.csv')
-#atribute.set_index('ID',inplace = True)
-#atribute.reset_index(inplace = True,drop=True)
-#output.set_index('ID',inplace = True)
-#output.reset_index(inplace = True,drop=True)
-#output = output.astype(int)
-#
-#
-#No_class = output.shape[1]
-#b = np.all(output == 0 ,axis=1)
-#b = b==False
-#output = output.iloc[b]
-#atribute = atribute.iloc[b]
-#atribute.reset_index(inplace = True,drop=True)
-#output.reset_index(inplace = True,drop=True)
-
-#No_class = 10
-#testsize2 = 0.2
-
-#output = output.iloc[:,:No_class]
-
-#x_train_com, x_test, y_train_com, y_test = train_test_split(atribute, output, test_size=0.25, random_state=31)
-#x_train_un, x_train_st, y_train_un, y_train_st = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
     
     std_scl = StandardScaler()
     std_scl.fit(x_train_un)
@@ -61,7 +37,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     x_train_st = std_scl.transform(x_train_st)
     no_train = x_train_st.shape[0]
     no_test = x_test.shape[0]
-    no_train_un = x_train_un.shape[0]
     predictions_test = np.zeros([no_test, No_class])
     predictions1_test = np.zeros([no_test, No_class])
     predictions_rand_test = np.zeros([no_test, No_class])
@@ -77,10 +52,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     Z3_test = np.zeros([no_test, No_class])
     Z3_train = np.zeros([no_train, No_class])
      
-    Y_train = y_train_st.values
-    Y_test = y_test.values
-    np.save('Y_train', Y_train)
-    np.save('Y_test', Y_test)
     skorAUC = np.zeros([1,4])
     skorAUC2 = np.zeros([No_class,4])
     
@@ -89,7 +60,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         
         rand_for = RandomForestClassifier(n_estimators=100)
         rand_for.fit(x_train_un, y_train_un.iloc[:,i])
-        predictions_rand_trainun = rand_for.predict_proba(x_train_un)
         predictions_rand_test[:,i] = rand_for.predict_proba(x_test)[:,1]
         Z3_train[:,i] = evZ(rand_for.predict_proba(x_train_st)[:,1])
         Z3_test[:,i] = evZ(rand_for.predict_proba(x_test)[:,1])
@@ -128,9 +98,7 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         logRegression.fit(x_train_un, y_train_un.iloc[:,i])
         logRegression1.fit(x_train_un, y_train_un.iloc[:,i])
         
-        predictions_train_un = logRegression.predict_proba(x_train_un)
         predictions_test[:,i] = logRegression.predict_proba(x_test)[:,1]
-        predictions1_train_un = logRegression1.predict_proba(x_train_un)
         predictions1_test[:,i] = logRegression1.predict_proba(x_test)[:,1]
         
         Z_train[:,i] = logRegression.decision_function(x_train_st)
@@ -140,7 +108,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         
         Z2_train[:,i] = model2.predict(x_train_st).reshape(no_train)
         Z2_train_un[:,i] = model2OF.predict(x_train_st).reshape(no_train)
-#        Z2_train_un[:,i] = evZ(rand_for.predict_proba(x_train_un)[:,1])
         Z2_test[:,i] = model2.predict(x_test).reshape(no_test)
         predictions_nn[:,i] = sigmoid(Z2_test[:,i])
         skorAUC2[i,0] = roc_auc_score(y_test.values[:,i],predictions_test[:,i])
@@ -166,8 +133,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     
     np.save('Skor_com_AUC.npy', skorAUC)
     np.save('Skor_com_AUC2.npy', skorAUC2)
-    np.save('Z_train_com', Z_train_com)
-    np.save('Z_test_com.npy', Z_test_com)
     np.save('Z_train_un.npy', Z2_train_un)
     
     Noinst_train = np.round(Z_train_com.shape[0]/No_class).astype(int)

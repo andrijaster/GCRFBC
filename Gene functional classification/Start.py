@@ -5,6 +5,7 @@ Created on Wed Oct 24 08:20:07 2018
 @author: Andrija Master
 """
 
+""" Packages"""
 import time
 import numpy as np
 import warnings
@@ -22,7 +23,7 @@ from Yeast_dataset import output, atribute
 
 
 
-""" Racunanje """
+""" Initialization """
 No_class = 14
 NoGraph = 4
 ModelUNNo = 4
@@ -92,9 +93,6 @@ timeBF82 = np.zeros(broj_fold)
 Skor_com_AUC = np.zeros([broj_fold,ModelUNNo])
 Skor_com_AUC2 = np.zeros([broj_fold,ModelUNNo])
 
-#x_train_com, x_test, y_train_com, Y_test = train_test_split(atribute, output, test_size=0.25, random_state=31)
-#x_train_un, x_train_st, y_train_un, Y_train = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
-
 skf = KFold(n_splits = broj_fold)
 skf.get_n_splits(atribute, output)
 i = 0
@@ -108,6 +106,7 @@ for train_index,test_index in skf.split(atribute, output):
 file = open("rezultatiYEAST.txt","w")
 
 for train_index,test_index in skf.split(atribute, output):
+    
     x_train_com, x_test = atribute.iloc[train_index,:], atribute.iloc[test_index,:]
     y_train_com, Y_test = output.iloc[train_index,:], output.iloc[test_index,:] 
     x_train_un, x_train_st, y_train_un, Y_train = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
@@ -123,180 +122,110 @@ for train_index,test_index in skf.split(atribute, output):
     start_time = time.time()
     mod1 = GCRFCNB()
     mod1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 6e-4, maxiter = iteracija)  
-    #mod1.alfa = np.array([1e10, 1e10, 1e10, 1e10])
-    #mod1.beta = np.array([1.0000000e-10, 1.0000000e-10, 1e-10, 1e-10])
     probNB, YNB = mod1.predict(R_test,Se_test)
     timeNB[i] = time.time() - start_time
     
     
     start_time = time.time()
     mod2 = GCRFC()
-    #x0 = np.load('mod2.npy')
     mod2.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija)  
-    np.save('mod2',mod2.x)  
-#    mod1.alfa = np.array([1e-6, 1e-6 , 1e-6, 1e-6])
-#    mod1.beta = np.array([ 1e-6, 1e-6, 18.9508093 ,  5.79445323])
     probB, YB, VarB = mod2.predict(R_test,Se_test)
     timeB[i] = time.time() - start_time 
     
     
     start_time = time.time()
     mod3 = GCRFC_fast()
-    #x0 = np.load('mod3.npy')
     mod3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'KMeans', clus_no = 5)  
-    np.save('mod3',mod3.x)
-#    mod3.alfa = np.array([1e-6, 1e-6 , 1e-6, 1e-6])
-#    mod3.beta = np.array([ 1e-6, 1e-6, 18.9508093 ,  5.79445323])
     probBF, YBF, VarBF = mod3.predict(R_test,Se_test)  
     timeBF[i] = time.time() - start_time
     
     start_time = time.time()
     mod4 = GCRFC_fast()
-    #x0 = np.load('mod4.npy')
     mod4.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'KMeans', clus_no = 50)  
-    np.save('mod4',mod4.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF2, YBF2, VarBF2 = mod4.predict(R_test,Se_test)  
     timeBF2[i] = time.time() - start_time
     
     start_time = time.time()
     mod41 = GCRFC_fast()
-    #x0 = np.load('mod41.npy')
     mod41.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'KMeans', clus_no = 150)  
-    np.save('mod41',mod41.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF21, YBF21, VarBF21 = mod41.predict(R_test,Se_test)  
     timeBF21[i] = time.time() - start_time
     
     start_time = time.time()
     mod42 = GCRFC_fast()
-    #x0 = np.load('mod42.npy')
     mod42.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'KMeans', clus_no = 250)  
-    np.save('mod42',mod42.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF22, YBF22, VarBF22 = mod42.predict(R_test,Se_test)  
     timeBF22[i] = time.time() - start_time
     
     start_time = time.time()
     mod5 = GCRFC_fast()
-    #x0 = np.load('mod5.npy')
     mod5.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'MiniBatchKMeans', clus_no = 5)  
-    np.save('mod5',mod5.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF3, YBF3, VarBF3 = mod5.predict(R_test,Se_test)  
     timeBF3[i] = time.time() - start_time
     
     start_time = time.time()
     mod6 = GCRFC_fast()
-    #x0 = np.load('mod6.npy')
     mod6.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'MiniBatchKMeans', clus_no = 50)  
-    np.save('mod6',mod6.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF4, YBF4, VarBF4 = mod6.predict(R_test,Se_test)  
     timeBF4[i] = time.time() - start_time
     
     start_time = time.time()
     mod61 = GCRFC_fast()
-    #x0 = np.load('mod61.npy')
     mod61.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'MiniBatchKMeans', clus_no = 150)  
-    np.save('mod61',mod61.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF41, YBF41, VarBF41 = mod61.predict(R_test,Se_test)  
     timeBF41[i] = time.time() - start_time
     
     start_time = time.time()
     mod62 = GCRFC_fast()
-    #x0 = np.load('mod62.npy')
     mod62.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'MiniBatchKMeans', clus_no = 250)  
-    np.save('mod62',mod62.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF42, YBF42, VarBF42 = mod62.predict(R_test,Se_test)  
     timeBF42[i] = time.time() - start_time
     
     start_time = time.time()
     mod7 = GCRFC_fast()
-    #x0 = np.load('mod7.npy')
     mod7.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixture', clus_no = 5)  
-    np.save('mod7',mod7.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF5, YBF5, VarBF5 = mod7.predict(R_test,Se_test)  
     timeBF5[i] = time.time() - start_time
     
     start_time = time.time()
     mod8 = GCRFC_fast()
-    #x0 = np.load('mod8.npy')
     mod8.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixture', clus_no = 50)  
-    np.save('mod8',mod8.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF6, YBF6, VarBF6 = mod8.predict(R_test,Se_test)  
     timeBF6[i] = time.time() - start_time
     
     start_time = time.time()
     mod81 = GCRFC_fast()
-    #x0 = np.load('mod81.npy')
     mod81.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixture', clus_no = 150)  
-    np.save('mod81',mod81.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF61, YBF61, VarBF61 = mod81.predict(R_test,Se_test)  
     timeBF61[i] = time.time() - start_time
     
     start_time = time.time()
     mod82 = GCRFC_fast()
-    #x0 = np.load('mod81.npy')
     mod82.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixture', clus_no = 250)  
-    np.save('mod82',mod82.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF62, YBF62, VarBF62 = mod82.predict(R_test,Se_test)  
     timeBF62[i] = time.time() - start_time
     
     start_time = time.time()
     mod9 = GCRFC_fast()
-    #x0 = np.load('mod9.npy')
     mod9.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixtureProb', clus_no = 5)  
-    np.save('mod9',mod9.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF7, YBF7, VarBF7 = mod9.predict(R_test,Se_test)  
     timeBF7[i] = time.time() - start_time
     
     start_time = time.time()
     mod10 = GCRFC_fast()
-    #x0 = np.load('mod10.npy')
     mod10.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixtureProb', clus_no = 50)  
-    np.save('mod10',mod10.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF8, YBF8, VarBF8 = mod10.predict(R_test,Se_test)  
     timeBF8[i] = time.time() - start_time
     
     start_time = time.time()
     mod101 = GCRFC_fast()
-    #x0 = np.load('mod101.npy')
     mod101.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixtureProb', clus_no = 150)  
-    np.save('mod10',mod101.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF81, YBF81, VarBF81 = mod101.predict(R_test,Se_test)  
     timeBF81[i] = time.time() - start_time
     
     start_time = time.time()
     mod102 = GCRFC_fast()
-    #x0 = np.load('mod102.npy')
     mod102.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixtureProb', clus_no = 250)  
-    np.save('mod102',mod102.x)
-    #mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
-    #mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08, 8.74943190e+01, 3.48984028e-03])  
     probBF82, YBF82, VarBF82 = mod102.predict(R_test,Se_test)  
     timeBF82[i] = time.time() - start_time
     
