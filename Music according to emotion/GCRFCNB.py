@@ -6,15 +6,11 @@ Created on Tue Jun 26 11:50:02 2018
 """
 
 import numpy as np
-import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 from scipy.optimize import minimize
 import scipy as sp
-from sklearn.metrics import accuracy_score 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score
-import math
+
 
 """ CLASS GCRFCNB """
 
@@ -139,6 +135,7 @@ class GCRFCNB:
             Precison = GCRFCNB.Prec(alfa, beta, NodeNo, Se, Noinst)
             DPrecdbeta = dPrecdbeta(Noinst,ModelSTNo,NodeNo,Se)
             mu,kovMat = GCRFCNB.muKov(alfa,R,Precison,Noinst,NodeNo)
+            mu[np.isnan(mu)] = 0
             Dbdalfa = dbdalfa(ModelUNNo,Noinst,R,NodeNo)
 #            Dbdalfa[Dbdalfa == -np.inf] = -1e12
             Dmudalfa = dmutdalfa(Dbdalfa,DPrecdalfa,kovMat,ModelUNNo,Noinst,mu)

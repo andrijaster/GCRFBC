@@ -30,7 +30,6 @@ def Struktura_fun(No_class,NoGraph,R2,y_train_com, Noinst_train, Noinst_test, ko
             Se[2,i,j] = np.exp(-koef1*np.sum(np.abs(y_train_com[:,i]-y_train_com[:,j])))
             Se[2,j,i] = Se[2,i,j]
             
-    R2 = np.load('Z_train_un.npy')
     scaler = StandardScaler()
     R2 = R2.reshape([R2.shape[0]*R2.shape[1],1])
     R2[R2==-np.inf] = -10
