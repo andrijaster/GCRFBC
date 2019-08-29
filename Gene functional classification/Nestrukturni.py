@@ -63,6 +63,7 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     skorAUC = np.zeros([1,4])
     skorAUC2 = np.zeros([No_class,4])
     ACC = np.zeros([1,4])
+    HL = np.zeros([1,4])
     ACC2 = np.zeros([No_class,4])
     
     
@@ -101,7 +102,7 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         model.compile(loss='binary_crossentropy', optimizer='SGD', metrics=['accuracy'])
         ES = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=4, verbose=0, mode='auto', baseline=None)
         model.fit(x_train_un, y_train_un.iloc[:,i], epochs=500, batch_size=250,validation_data=(x_test, y_test.iloc[:,i]), callbacks=[ES])
-        Y_test_NN[:,i] = model.predict(x_test)
+        Y_test_NN[:,i] = np.round(model.predict(x_test).T)
         
         model2 = Sequential()
         model2.add(Dense(20, input_dim=x_train_un.shape[1], weights = model.layers[0].get_weights() ,activation='relu'))
@@ -138,10 +139,10 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         skorAUC2[i,2] = roc_auc_score(y_test.values[:,i],predictions_nn[:,i])
         skorAUC2[i,3] = roc_auc_score(y_test.values[:,i],predictions_rand_test[:,i])    
         
-        ACC2[i,0] = accuracy_score(y_test.values[:,i], Y_test_L2) 
-        ACC2[i,1] = accuracy_score(y_test.values[:,i], Y_test_L1) 
-        ACC2[i,2] = accuracy_score(y_test.values[:,i], Y_test_NN) 
-        ACC2[i,3] = accuracy_score(y_test.values[:,i], Y_test_RF) 
+        ACC2[i,0] = accuracy_score(y_test.values[:,i], Y_test_L2[:,i]) 
+        ACC2[i,1] = accuracy_score(y_test.values[:,i], Y_test_L1[:,i]) 
+        ACC2[i,2] = accuracy_score(y_test.values[:,i], Y_test_NN[:,i]) 
+        ACC2[i,3] = accuracy_score(y_test.values[:,i], Y_test_RF[:,i]) 
     
     """ METRICS EVALUATION """
     y_test = y_test.values
@@ -150,6 +151,11 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     skorAUC[:,1] = roc_auc_score(y_test.reshape([y_test.shape[0]*y_test.shape[1]]),predictions1_test.reshape([y_test.shape[0]*y_test.shape[1]]))
     skorAUC[:,2] = roc_auc_score(y_test.reshape([y_test.shape[0]*y_test.shape[1]]),predictions_nn.reshape([Z_test.shape[0]*Z2_test.shape[1]]))
     skorAUC[:,3] = roc_auc_score(y_test.reshape([y_test.shape[0]*y_test.shape[1]]),predictions_rand_test.reshape([y_test.shape[0]*y_test.shape[1]]))
+    
+    HL[:,0] = hamming_loss(y_test,Y_test_L2)
+    HL[:,1] = hamming_loss(y_test,Y_test_L1)
+    HL[:,2] = hamming_loss(y_test,Y_test_NN)
+    HL[:,3] = hamming_loss(y_test,Y_test_RF)
     
     ACC[:,0] = accuracy_score(y_test.reshape([y_test.shape[0]*y_test.shape[1]]),Y_test_L2.reshape([y_test.shape[0]*y_test.shape[1]]))
     ACC[:,1] = accuracy_score(y_test.reshape([y_test.shape[0]*y_test.shape[1]]),Y_test_L1.reshape([y_test.shape[0]*y_test.shape[1]]))
@@ -194,6 +200,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         Z_train_com[:,i] = Z_train_com[:,i]*10**(-faktor)
         Z_test_com[:,i] = Z_test_com[:,i]*10**(-faktor)
     
-    return skorAUC, skorAUC2com, ACC, ACC2com, Z_train_com, Z_test_com, Z2_train_un, Noinst_train, Noinst_test
+    return skorAUC, skorAUC2com, ACC, ACC2com, HL, Z_train_com, Z_test_com, Z2_train_un, Noinst_train, Noinst_test
 
     

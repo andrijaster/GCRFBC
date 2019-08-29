@@ -154,7 +154,7 @@ for train_index,test_index in skf.split(atribute, output):
     y_train_com, Y_test = output.iloc[train_index,:], output.iloc[test_index,:] 
     x_train_un, x_train_st, y_train_un, Y_train = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
 
-    Skor_com_AUC[i,:], Skor_com_AUC2[i,:], Skor_com_ACC[i,:], Skor_com_ACC2[i,:], R_train, R_test, R2, Noinst_train, Noinst_test = Nestrukturni_fun(x_train_un, y_train_un, x_train_st, Y_train, x_test, Y_test, No_class)
+    Skor_com_AUC[i,:], Skor_com_AUC2[i,:], Skor_com_ACC[i,:], Skor_com_ACC2[i,:], Skor_com_HL[i,:], R_train, R_test, R2, Noinst_train, Noinst_test = Nestrukturni_fun(x_train_un, y_train_un, x_train_st, Y_train, x_test, Y_test, No_class)
     Se_train, Se_test = Struktura_fun(No_class,NoGraph, R2 , y_train_com, Noinst_train, Noinst_test)
     
     
