@@ -129,6 +129,7 @@ timeBF7 = np.zeros(broj_fold)
 timeBF8 = np.zeros(broj_fold)
 timeBF81 = np.zeros(broj_fold)
 timeBF82 = np.zeros(broj_fold)
+timeUN = np.zeros([broj_fold,ModelUNNo])
 
 Skor_com_AUC = np.zeros([broj_fold,ModelUNNo])
 Skor_com_AUC2 = np.zeros([broj_fold,ModelUNNo])
@@ -154,7 +155,9 @@ for train_index,test_index in skf.split(atribute, output):
     y_train_com, Y_test = output.iloc[train_index,:], output.iloc[test_index,:] 
     x_train_un, x_train_st, y_train_un, Y_train = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
 
-    Skor_com_AUC[i,:], Skor_com_AUC2[i,:], Skor_com_ACC[i,:], Skor_com_ACC2[i,:], Skor_com_HL[i,:], R_train, R_test, R2, Noinst_train, Noinst_test = Nestrukturni_fun(x_train_un, y_train_un, x_train_st, Y_train, x_test, Y_test, No_class)
+    """ UNSTRUCTURED PREDICTORS """
+    Skor_com_AUC[i,:], Skor_com_AUC2[i,:], Skor_com_ACC[i,:], Skor_com_ACC2[i,:], Skor_com_HL[i,:], R_train, R_test, R2, Noinst_train, Noinst_test, timeUN[i,:] = Nestrukturni_fun(x_train_un, y_train_un, x_train_st, Y_train, x_test, Y_test, No_class)
+    """ STructured matrix """
     Se_train, Se_test = Struktura_fun(No_class,NoGraph, R2 , y_train_com, Noinst_train, Noinst_test)
     
     
@@ -614,7 +617,7 @@ file.write("--- %s seconds mean --- GCRFCB7_fast" % (np.sum(timeBF7)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB8_fast" % (np.sum(timeBF8)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB81_fast" % (np.sum(timeBF81)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB82_fast" % (np.sum(timeBF82)) + "\n")
-    
+file.write("--- %s seconds mean --- GCRFCB82_fast" % (np.sum(timeUN,axis = 0)) + "\n")   
 
 file.close()
 

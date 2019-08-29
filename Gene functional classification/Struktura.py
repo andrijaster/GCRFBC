@@ -12,6 +12,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mutual_info_score
 
 
+""" Structured matrix definition """
+
 def Struktura_fun(No_class,NoGraph,R2,y_train_com, Noinst_train, Noinst_test, koef1 = 0.5):
 
     Se = np.zeros([NoGraph,No_class,No_class])

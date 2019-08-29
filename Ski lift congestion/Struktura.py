@@ -4,6 +4,7 @@ Created on Mon Jun 25 16:54:44 2018
 
 @author: Andrija Master
 """
+""" Structured Matrix """
 
 
 import pandas as pd
@@ -45,10 +46,6 @@ def Struktura_fun(No_class,NoGraph,R2, train_index, test_index, Noinst_train, No
     Se[3,:,:] = np.exp(-1/Se[3,:,:])  
     Se[4,:,:] = np.exp(-3/Se[4,:,:])  
     
-    #Se[0,:,:] = np.exp(-8/Se[0,:,:])
-    #Se[1,:,:] = np.exp(-/Se[1,:,:])  
-    #Se[3,:,:] = np.exp(-8/Se[3,:,:])  
-    #Se[4,:,:] = np.exp(-8/Se[4,:,:])  
     scaler = StandardScaler()
     R2 = R2.reshape([R2.shape[0]*R2.shape[1],1])
     scaler.fit(R2)
@@ -60,14 +57,11 @@ def Struktura_fun(No_class,NoGraph,R2, train_index, test_index, Noinst_train, No
     np.fill_diagonal(Corelation_mat,0)
     
     Se[2,:,:] = Corelation_mat
-    np.save('Se',Se)
     skijasi = pd.read_csv(str(staze[0]))
     broj_label = 5
     c = 1e-2
     k = 0
-#    testsize = 0.2 #0.25
-#    testsize2 = 0.5 #0.2
-    
+
     skinovo = np.zeros([len(staze),skijasi.shape[0],broj_label])
     for i in staze:
         skijasi = pd.read_csv(str(i))
@@ -85,11 +79,8 @@ def Struktura_fun(No_class,NoGraph,R2, train_index, test_index, Noinst_train, No
         skijasi.set_index('date1',drop=False,inplace = True)
         for j1 in range(broj_label,skijasi.shape[0]):
             skinovo[j1,k*broj_label:(k+1)*broj_label] = skijasi.vreme_pros.iloc[j1-broj_label:j1]
-        k+=1
-    #skinovo = pd.DataFrame(skinovo, index = skijasi.index.values)
-#    skinovo_train_com, skinovo_test, y_train_com, y_test = train_test_split(skinovo, skijasi.label, test_size=testsize, random_state=31)
-#    skinovo_train_un, skinovo_train_st, y_train_un, y_train_st = train_test_split(skinovo_train_com, y_train_com, test_size=testsize2, random_state=31)    
-    
+        k+=1  
+        
     skinovo_train_com, skinovo_test = skinovo[train_index,:], skinovo[test_index,:]
     y_train_com = skijasi.label.iloc[train_index]
     skinovo_train_un, skinovo_train_st, y_train_un, y_train_st = train_test_split(skinovo_train_com, y_train_com, test_size=testsize2, random_state=31)    
@@ -125,8 +116,5 @@ def Struktura_fun(No_class,NoGraph,R2, train_index, test_index, Noinst_train, No
     
     Se_train[:,5,:,:] = np.squeeze(Se_train_st)
     Se_test1[:,5,:,:] = np.squeeze(Se_test)
-
-    np.save('Se_train',Se_train)
-    np.save('Se_test',Se_test1)   
-    
+   
     return Se_train, Se_test1

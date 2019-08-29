@@ -6,11 +6,15 @@ Created on Tue Jun 26 11:50:02 2018
 """
 
 import numpy as np
+import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 from scipy.optimize import minimize
 import scipy as sp
-
+from sklearn.metrics import accuracy_score 
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
+import math
 
 """ CLASS GCRFCNB """
 

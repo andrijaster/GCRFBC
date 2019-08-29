@@ -6,14 +6,19 @@ Created on Tue Jun 26 08:19:07 2018
 """
 
 import numpy as np
+import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 from scipy.optimize import minimize
 import scipy as sp
+from sklearn.metrics import accuracy_score 
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
 from sklearn.cluster import KMeans
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.cluster import MeanShift
 from sklearn.mixture import GaussianMixture
+import math
 
 """ CLASS GCRFC """
 
@@ -45,28 +50,28 @@ class GCRFC_fast:
             Prec[m,:,:] = 2*(Q2[m,:,:]+np.diag(-Q2[m,:,:].sum(axis=0))+Q1)
         return Prec
     
-    def sigmaCal(ceta): # CHECKED
+    def sigmaCal(ceta): # Provereno
         Sigma = 1/(1 + np.exp(-ceta))
         Dsigmadceta = Sigma*(1 - Sigma)
         return Sigma,Dsigmadceta
     
-    def Lambda(Noinst,NodeNo,ceta,sigma): # CHECKED
+    def Lambda(Noinst,NodeNo,ceta,sigma): # Provereno
         Lambda = np.zeros([Noinst,NodeNo,NodeNo])
         diagonal = np.tanh(ceta/2)/(4*ceta)
         for m in range(Noinst):
             Lambda[m,:,:] = np.diag(diagonal[m,:])
         return Lambda
     
-    def Sinv_S(Prec,Lambda): # CHECKED
+    def Sinv_S(Prec,Lambda): # Provereno
         Sinv = Prec + 2*Lambda     
         S = np.linalg.inv(Sinv)
         return Sinv,S
     
-    def Tmat(Y): # CHECKED
+    def Tmat(Y): # Provereno
         T = Y - 1/2
         return T
     
-    def mivec(S,T,Prec,mu,Noinst,NodeNo): # CHECKED
+    def mivec(S,T,Prec,mu,Noinst,NodeNo): # Provereno
         mi = np.zeros([Noinst,NodeNo])
         for m in range(Noinst):
             mi[m,:] = S[m,:,:].dot(T[m,:]+Prec[m,:,:].dot(mu[m,:]))
@@ -81,7 +86,7 @@ class GCRFC_fast:
 
     """ PREDICT """
     
-    def predict(self,R,Se): # CHECKED
+    def predict(self,R,Se): # PROVERENO
 
         def function(var, mu):
             def integral(z):
@@ -118,34 +123,34 @@ class GCRFC_fast:
         
         def dLdX(x, ModelUNNo, ModelSTNo, TotalNo, Se, R, Y, Noinst, NodeNo, method_clus):
                 
-            def Trace(x, y): # CHECKED
+            def Trace(x, y): # Provereno
                 i1,j1 = x.shape
                 trMat = 0
                 for k in range(i1):
                     trMat = trMat+x[k,:].dot(y[:,k])
                 return trMat
             
-            def dPrecdalfa(NodeNo,ModelUNNo): # CHECKED
+            def dPrecdalfa(NodeNo,ModelUNNo): # Provereno
                 dPrecdalfa = np.zeros([ModelUNNo,NodeNo,NodeNo])
                 dQ1dalfa = np.identity(NodeNo)
                 for p in range(ModelUNNo):
                     dPrecdalfa[p,:,:] = dQ1dalfa*2
                 return dPrecdalfa
         
-            def dbdalfa(ModelUNNo,Noinst,R,NodeNo): # CHECKED  1 
+            def dbdalfa(ModelUNNo,Noinst,R,NodeNo): # Provereno  1 
                 dbdalfa = np.zeros([Noinst,ModelUNNo,NodeNo])
                 for m in range(ModelUNNo):
                     dbdalfa[:,m,:] = 2*R[:,m].reshape([Noinst, NodeNo])
                 return dbdalfa
             
-            def dmutdalfa(dbdalfa,dPrecdalfa,Kov,ModelUNNo,Noinst,mu,NodeNo): # CHECKED
+            def dmutdalfa(dbdalfa,dPrecdalfa,Kov,ModelUNNo,Noinst,mu,NodeNo): # Provereno
                 dmutdalfa = np.zeros([Noinst,ModelUNNo,NodeNo])
                 for m in range(Noinst):
                     for p in range(ModelUNNo):
                         dmutdalfa[m,p,:] = (dbdalfa[m,p,:]-dPrecdalfa[p,:,:].dot(mu[m,:])).T.dot(Kov[m,:,:])
                 return dmutdalfa
             
-            def dPrecdbeta(Noinst,ModelSTNo,NodeNo,Se): # CHECKED
+            def dPrecdbeta(Noinst,ModelSTNo,NodeNo,Se): # PROVERENO
                 dPrecdbeta = np.zeros([Noinst,ModelSTNo,NodeNo,NodeNo])
                 dPrecdbeta = -Se
                 for m in range(Noinst):
@@ -153,14 +158,14 @@ class GCRFC_fast:
                         dPrecdbeta[m,L,:,:]=2*(dPrecdbeta[m,L,:,:] + np.diag(-dPrecdbeta[m,L,:,:].sum(axis=1))) 
                 return dPrecdbeta
             
-            def dmutdbeta(dPrecdbeta,mu,Kov,Noinst,ModelSTNo,NodeNo): # CHECKED
+            def dmutdbeta(dPrecdbeta,mu,Kov,Noinst,ModelSTNo,NodeNo): # Provereno
                 dmutdbeta = np.zeros([Noinst,ModelSTNo,NodeNo])
                 for m in range(0,Noinst):
                     for p in range(0,ModelSTNo):
                         dmutdbeta[m,p,:] = (-dPrecdbeta[m,p,:,:].dot(mu[m,:])).T.dot(Kov[m,:,:])
                 return dmutdbeta
             
-            def SigFun_dlamdcet(Noinst,NodeNo,ceta,sigma,dsigmadceta): # CHECKED *2
+            def SigFun_dlamdcet(Noinst,NodeNo,ceta,sigma,dsigmadceta): # Provereno *2
                 sigmafun = (1/sigma + 1/2*ceta)*dsigmadceta + (1/2*sigma - 3/4)
                 diagonal = 1/(4*ceta**2)*(0.5*ceta*(1-np.tanh(ceta/2)**2)-np.tanh(ceta/2))
                 return sigmafun,diagonal
@@ -171,7 +176,7 @@ class GCRFC_fast:
                 return dlambdadceta
             
     
-            def dLdceta(S,Sinv,dlambdadceta,mu,mi,T,Prec,sigmafun,Noinst,Nonode,method_clus, diagonal): # CHECKED *2
+            def dLdceta(S,Sinv,dlambdadceta,mu,mi,T,Prec,sigmafun,Noinst,Nonode,method_clus, diagonal): # Provereno *2
                 
                 def find_nearest(array, value):
                     array = np.asarray(array)
@@ -213,9 +218,8 @@ class GCRFC_fast:
                 
                 
                 DLdceta = np.zeros([Noinst,NodeNo])
-                mu[np.isnan(mu)] = 0
+                mu[np.isnan(mu)] = np.random.rand(mu[np.isnan(mu)].shape[0])
 
-                
                 if method_clus == 'KMeans':
                     mux = mu.reshape([mu.size,1])
                     mux[mux==np.inf] = 1e10
@@ -281,7 +285,7 @@ class GCRFC_fast:
                     DLdceta = evaluate2(predikcije)
                 return -1*DLdceta
         
-            def dLdbeta(T,ModelSTNo,Noinst,S,Sinv,mu,mi,Prec,dPrecdalfa,KovMat,dmutdbeta,dPrecdbeta): # CHECKED 
+            def dLdbeta(T,ModelSTNo,Noinst,S,Sinv,mu,mi,Prec,dPrecdalfa,KovMat,dmutdbeta,dPrecdbeta): # Provereno 
                 DLdbeta=np.zeros(ModelSTNo)
                 for k in range(ModelSTNo):
                     for i in range(Noinst):
@@ -291,7 +295,7 @@ class GCRFC_fast:
                         1/2*Trace(KovMat[i,:,:],dPrecdbeta[i,k,:,:]) + DLdbeta[k]
                 return -1*DLdbeta
             
-            def dLdalfa(T,ModelUNNo,Noinst,S,Sinv,mu,mi,Prec,dPrecdalfa,KovMat,dmutdalfa): # CHECKED 
+            def dLdalfa(T,ModelUNNo,Noinst,S,Sinv,mu,mi,Prec,dPrecdalfa,KovMat,dmutdalfa): # Provereno 
                 DLdalfa = np.zeros(ModelUNNo)
                 for k in range(ModelUNNo):
                     for i in range(Noinst):
@@ -421,3 +425,184 @@ class GCRFC_fast:
             self.beta = np.exp(res.x[ModelUNNo:ModelSTNo+ModelUNNo])
             self.x = res.x
                 
+
+
+#""" Proba na SIN podacima """
+#import time
+#def S(connect,Se,Xst):
+#        for j in range(NoGraph):
+#            for k,l in connect[j]:
+#                if j == 0:
+#                    Se[:,j,k,l] = np.exp(np.abs(Xst.iloc[:,j].unstack().values[:,k] - 
+#                      Xst.iloc[:,j].unstack().values[:,l]))*0.1 
+#                    Se[:,j,l,k] = Se[:,j,k,l]
+#                elif j == 1:
+#                     Se[:,j,k,l] = np.exp(np.abs(Xst.iloc[:,j].unstack().values[:,k] - 
+#                      Xst.iloc[:,j].unstack().values[:,l]))*0.3
+#                     Se[:,j,l,k] = Se[:,j,k,l]
+#        return Se
+#
+#path = 'D:\Dokumenti\Programi Python\Proba.xlsx'
+#df = pd.read_excel(path)
+#R = df.iloc[:,:2].values
+#R = np.load('R_sinteticki.npy')
+#NodeNo = 600
+#Nopoint = R.shape[0]
+#Noinst = np.round(Nopoint/NodeNo).astype(int)
+#i1 = np.arange(NodeNo)
+#i2 = np.arange(Noinst)
+#Xst = np.load('Xst.npy')
+#Xst =pd.DataFrame(data=Xst)
+#Xst['Node'] = np.tile(i1, Noinst)
+#Xst['Inst'] = np.repeat(i2,NodeNo)
+#Xst = Xst.set_index(['Inst','Node'])
+#connect1=np.array([[0,1],[1,2]])
+#connect2=np.array([[0,1],[2,3]])
+#connect=[connect1,connect2]
+#NoGraph = len(connect)
+##Se = np.zeros([Noinst,NoGraph,NodeNo,NodeNo])
+##Se = S(connect,Se,Xst)
+#Se = np.load('Se.npy')
+#
+#Notrain = (Noinst*0.8).astype(int)
+#Notest = (Noinst*0.2).astype(int)
+#
+#Se_train = Se[:Notrain,:,:,:]
+#R_train = R[:Notrain*NodeNo,:]
+#
+#mod1 = GCRFC_fast()
+#mod1.alfa = np.array([1,2])
+#mod1.beta = np.array([22,5])
+#Y = np.load('Y.npy')
+#Y_test = Y[Notrain:Noinst,:]
+#Y_train = Y[:Notrain,:]
+#
+#
+#x = np.load('X0.npy')
+#start_time = time.time()
+#
+#mod1.fit(R_train, Se_train, Y_train, x0 = x, learn = 'GRAD',maxiter=20000, method_clus = 'MiniBatchKMeans')  
+##mod1.fit(R_train, Se_train, Y_train, learn = 'GRAD',maxiter=20000, method_clus = 'KMeans')  
+#
+##mod1.alfa = np.array([2.02618082e+01, 1.00000032e-08])
+##mod1.beta = np.array([1.00000000e-08, 1.81217364e+01])
+#
+#R_test = R[Notrain*NodeNo:Noinst*NodeNo,:]
+#Se_test = Se[Notrain:Noinst,:,:,:]
+#prob2, Y2, Var = mod1.predict(R_test,Se_test)
+#Prob1 = prob2.copy()
+#Prob1[Y2==0] = 1 - Prob1[Y2==0]  
+#Y21 =  Y2.reshape([Y2.shape[0]*Y2.shape[1]])
+#Y_test1 = Y_test.reshape([Y_test.shape[0]*Y_test.shape[1]])
+#probr = prob2.reshape([prob2.shape[0]*prob2.shape[1]])
+#probr1 = Prob1.reshape([Prob1.shape[0]*Prob1.shape[1]])
+#print('AUC je {}'.format(roc_auc_score(Y_test1,probr)))
+##print('Skor je {}'.format(accuracy_score(Y21,Y_test1)))
+#print('LogPRob je {}'.format(np.sum(np.log(probr1))))
+#print("--- %s seconds ---" % (time.time() - start_time))
+
+#""" Stvarni podaci Skijasi"""
+#
+#Spom = np.load('Se.npy')
+#R_train = np.load('Z_train_com.npy')
+#R_test = np.load('Z_test_com.npy')
+#Y_train = np.load('Y_train.npy')
+#Y_test = np.load('Y_test.npy')
+#Se_train_inst = np.load('Se_train.npy')
+#Se_test_inst = np.load('Se_test.npy')
+#
+#NodeNo = 7
+#Noinst_train = np.round(R_train.shape[0]/NodeNo).astype(int)
+#Noinst_test = np.round(R_test.shape[0]/NodeNo).astype(int)
+#
+#ModelSTNo = 6
+#Se_train = np.zeros([Noinst_train,ModelSTNo,NodeNo,NodeNo])
+#Se_test = np.zeros([Noinst_test,ModelSTNo,NodeNo,NodeNo])
+#
+#for i in range(Noinst_train):
+#    Se_train[i,:5,:,:] = Spom
+#    
+#for i in range(Noinst_test):
+#    Se_test[i,:5,:,:] = Spom    
+#
+#
+#Se_train[:,5,:,:] = np.squeeze(Se_train_inst)
+#Se_test[:,5,:,:] = np.squeeze(Se_test_inst)
+#
+#mod1 = GCRFC_fast()
+##x0 = np.load('mod1.npy')
+#mod1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = 500)  
+#np.save('mod1',mod1.x)
+#
+##mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
+##mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08,
+##       8.74943190e+01, 3.48984028e-03])
+#
+#prob2, Y2, Var = mod1.predict(R_test,Se_test)  
+#Y2 =  Y2.reshape([Y2.shape[0]*Y2.shape[1]])
+#prob2 = prob2.reshape([prob2.shape[0]*prob2.shape[1]])
+#Y_test = Y_test.reshape([Y_test.shape[0]*Y_test.shape[1]])
+#print('AUC GCRFC prediktora je {}'.format(roc_auc_score(Y_test,prob2)))
+##print('Skor GCRFC prediktora je {}'.format(accuracy_score(Y2,Y_test)))
+##Skor_com = np.load('Skor_com.npy')
+#Skor_com_AUC = np.load('Skor_com_AUC.npy')
+#print('AUC nestruktuiranih prediktora je {}'.format(Skor_com_AUC))
+##print('Skor nestruktuiranih prediktora je {}'.format(Skor_com))
+#print('Logprob je {}'.format(np.sum(np.log(prob2))))
+#    
+#""" Stvarni podaci Debeli"""
+#
+#import time
+#Spom = np.load('Se.npy')
+#R_train = np.load('Z_train_com.npy')
+#R_train[R_train == -np.inf] = -10
+#R_train[R_train == -np.inf] = np.min(R_train)-100
+#R_test = np.load('Z_test_com.npy')
+#R_test[R_test == -np.inf] = -10
+#R_test[R_test == -np.inf] = np.min(R_test)-100
+#Y_train = np.load('Y_train.npy')
+#Y_test = np.load('Y_test.npy')
+#for i in range(R_train.shape[1]):
+#    Range = np.abs(np.max(R_train[:,i]) + np.min(R_train[:,i]))
+#    faktor = int(math.log10(Range))
+#    R_train[:,i] = R_train[:,i]*10**(-faktor)
+#    R_test[:,i] = R_test[:,i]*10**(-faktor)
+#
+#
+#NodeNo = 10
+#Noinst_train = np.round(R_train.shape[0]/NodeNo).astype(int)
+#Noinst_test = np.round(R_test.shape[0]/NodeNo).astype(int)
+#
+#ModelSTNo = 4
+#Se_train = np.zeros([Noinst_train,ModelSTNo,NodeNo,NodeNo])
+#Se_test = np.zeros([Noinst_test,ModelSTNo,NodeNo,NodeNo])
+#
+#for i in range(Noinst_train):
+#    Se_train[i,:,:,:] = Spom
+#    
+#for i in range(Noinst_test):
+#    Se_test[i,:,:,:] = Spom   
+#    
+#start_time = time.time()
+#mod1 = GCRFC_fast()
+##x0 = np.load('mod1.npy')
+#mod1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = 5000)  
+#np.save('mod1',mod1.x)
+#
+##mod1.alfa = np.array([0.1043126 , 0.06905401, 0.08689079])
+##mod1.beta = np.array([1.00008728e-08, 2.88191498e+02, 1.00000563e-08, 1.00000000e-08,
+##       8.74943190e+01, 3.48984028e-03])
+#
+#prob2, Y2, Var = mod1.predict(R_test,Se_test)  
+#Y2 =  Y2.reshape([Y2.shape[0]*Y2.shape[1]])
+#prob2 = prob2.reshape([prob2.shape[0]*prob2.shape[1]])
+#Y_test = Y_test.reshape([Y_test.shape[0]*Y_test.shape[1]])
+#print('AUC GCRFC prediktora je {}'.format(roc_auc_score(Y_test,prob2)))
+##print('Skor GCRFC prediktora je {}'.format(accuracy_score(Y2,Y_test)))
+##Skor_com = np.load('Skor_com.npy')
+#Skor_com_AUC = np.load('Skor_com_AUC.npy')
+#print('AUC nestruktuiranih prediktora je {}'.format(Skor_com_AUC))
+##print('Skor nestruktuiranih prediktora je {}'.format(Skor_com))
+#print('Logprob je {}'.format(np.sum(np.log(prob2))))
+#print("--- %s seconds ---" % (time.time() - start_time))
+#    

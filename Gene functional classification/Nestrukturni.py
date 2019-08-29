@@ -4,9 +4,12 @@ Created on Wed Oct  3 10:04:06 2018
 
 @author: Andrija Master
 """
+""" Unstructured predictors """
 def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_test, No_class):
     
+    
     import warnings
+    import time
     warnings.filterwarnings('ignore')
     import seaborn as sns
     sns.set()
@@ -65,17 +68,23 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     ACC = np.zeros([1,4])
     HL = np.zeros([1,4])
     ACC2 = np.zeros([No_class,4])
-    
+    timeRF = np.zeros(No_class)
+    timeNN = np.zeros(No_class)
+    timeL2 = np.zeros(No_class)
+    timeL1 = np.zeros(No_class)
     
     for i in range(No_class):
         
+        
         """ Random forest """
+        start_time = time.time()
         rand_for = RandomForestClassifier(n_estimators=100)
         rand_for.fit(x_train_un, y_train_un.iloc[:,i])
         predictions_rand_test[:,i] = rand_for.predict_proba(x_test)[:,1]
         Z3_train[:,i] = evZ(rand_for.predict_proba(x_train_st)[:,1])
         Z3_test[:,i] = evZ(rand_for.predict_proba(x_test)[:,1])
         Y_test_RF[:,i] = rand_for.predict(x_test)
+        timeRF[i] = time.time() - start_time
         
         
         """ Neural Network overfitted for strucured predictor """
@@ -94,6 +103,7 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         model2OF.add(Dense(1 , weights = modelOF.layers[3].get_weights(), activation='linear'))
 
         """ Neural Network - unstructured """        
+        start_time = time.time()
         model = Sequential()
         model.add(Dense(20, input_dim = x_train_un.shape[1], activation='relu'))
         model.add(Dense(10, activation='relu'))
@@ -103,6 +113,7 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         ES = keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=4, verbose=0, mode='auto', baseline=None)
         model.fit(x_train_un, y_train_un.iloc[:,i], epochs=500, batch_size=250,validation_data=(x_test, y_test.iloc[:,i]), callbacks=[ES])
         Y_test_NN[:,i] = np.round(model.predict(x_test).T)
+        timeNN[i] = time.time() - start_time
         
         model2 = Sequential()
         model2.add(Dense(20, input_dim=x_train_un.shape[1], weights = model.layers[0].get_weights() ,activation='relu'))
@@ -119,9 +130,17 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         """ Logistic regression L2 and L1"""
         logRegression = LogisticRegression(C = 1, penalty = 'l2')
         logRegression1 = LogisticRegression(C = 1, penalty = 'l1', solver='saga')
+        
+        start_time = time.time()
         logRegression.fit(x_train_un, y_train_un.iloc[:,i])
+        Y_test_L2[:,i] = logRegression.predict(x_test)
+        timeL2[i] = time.time() - start_time
+        
+        start_time = time.time()
         logRegression1.fit(x_train_un, y_train_un.iloc[:,i])
-
+        Y_test_L1[:,i] = logRegression1.predict(x_test)
+        timeL1[i] = time.time() - start_time
+        
         predictions_test[:,i] = logRegression.predict_proba(x_test)[:,1]
         predictions1_test[:,i] = logRegression1.predict_proba(x_test)[:,1]
         
@@ -130,8 +149,7 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         Z1_train[:,i] = logRegression1.decision_function(x_train_st)
         Z1_test[:,i] = logRegression1.decision_function(x_test)        
         
-        Y_test_L2[:,i] = logRegression.predict(x_test)
-        Y_test_L1[:,i] = logRegression1.predict(x_test)
+
                
         """ METRIC evaluation for each class """
         skorAUC2[i,0] = roc_auc_score(y_test.values[:,i],predictions_test[:,i])
@@ -192,7 +210,10 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     Z_test_com[Z_test_com == 10] = np.max(Z_test_com)+100
     Z2_train_un[Z2_train_un == np.inf] = 10
     Z2_train_un[Z2_train_un == 10] = np.max(Z2_train_un)+100
-
+    
+    """ Time Unstructured """
+    
+    time = np.array([np.mean(timeL2), np.mean(timeL1), np.mean(timeNN), np.mean(timeRF)])
 
     for i in range(Z_train_com.shape[1]):
         Range = np.abs(np.max(Z_train_com[:,i]) + np.min(Z_train_com[:,i]))
@@ -200,6 +221,6 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
         Z_train_com[:,i] = Z_train_com[:,i]*10**(-faktor)
         Z_test_com[:,i] = Z_test_com[:,i]*10**(-faktor)
     
-    return skorAUC, skorAUC2com, ACC, ACC2com, HL, Z_train_com, Z_test_com, Z2_train_un, Noinst_train, Noinst_test
+    return skorAUC, skorAUC2com, ACC, ACC2com, HL, Z_train_com, Z_test_com, Z2_train_un, Noinst_train, Noinst_test, time
 
     
