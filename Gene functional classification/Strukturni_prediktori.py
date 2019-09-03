@@ -103,14 +103,18 @@ def Strukturni(x_train, y_train, x_test, y_test, Se_train, Se_test, No_class):
     inp_test, arcnode_test, graphnode_test = gnn_utils.from_EN_to_GNN(E_test, N_test)
     input_train = np.zeros([Se_train.shape[0],Se_train.shape[1]])
     input_test = np.zeros([Se_test.shape[0],Se_test.shape[1]])
+    m=0
     for i in range(Se_train.shape[0]):
         for k in range(Se_train.shape[2]):
                 for j in range(k+1,Se_train.shape[3]):
-                    input_train[i,:] = Se_train[i,:,k,j]
+                    input_train[m,:] = Se_train[i,:,k,j]
+                    m+=1
+    m=0                
     for i in range(Se_test.shape[0]):
         for k in range(Se_test.shape[2]):
                 for j in range(k+1,Se_test.shape[3]):
-                    input_test[i,:] = Se_test[i,:,k,j]        
+                    input_test[m,:] = Se_test[i,:,k,j]    
+                    m+=1
     aa = 22
 
     

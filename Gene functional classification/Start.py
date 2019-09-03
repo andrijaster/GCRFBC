@@ -27,7 +27,7 @@ from Yeast_dataset import output, atribute
 
 
 """ Initialization """
-No_class = 2
+No_class = 14
 NoGraph = 4
 ModelUNNo = 4
 testsize2 = 0.2
