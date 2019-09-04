@@ -25,6 +25,9 @@ def Nestrukturni_fun(x_train_un, y_train_un, x_train_st, y_train_st, x_test, y_t
     from keras.layers import Dense
     import keras
     import math
+    import tensorflow as tf
+    from keras import backend as K
+    K.clear_session()
     
     plt.close('all')
     
