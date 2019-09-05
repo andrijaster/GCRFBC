@@ -17,7 +17,7 @@ from sklearn.metrics import hamming_loss
 from sklearn.model_selection import KFold
 
 from Nestrukturni import Nestrukturni_fun
-from Strukturni_prediktori import Strukturni
+from Struct_predict import Strukturni
 from Struktura import Struktura_fun 
 from GCRFCNB import GCRFCNB
 from GCRFC import GCRFC
@@ -27,9 +27,10 @@ from Yeast_dataset import output, atribute
 
 
 """ Initialization """
-No_class = 3 #14
+No_class = 14
 NoGraph = 4
 ModelUNNo = 4
+ModelSTNo = 5
 testsize2 = 0.2
 broj_fold = 10
 iteracija = 400
@@ -138,6 +139,10 @@ Skor_com_ACC = np.zeros([broj_fold,ModelUNNo])
 Skor_com_ACC2 = np.zeros([broj_fold,ModelUNNo])
 Skor_com_HL = np.zeros([broj_fold,ModelUNNo])
 
+ACC_ST = np.zeros([broj_fold,ModelSTNo])
+HL_ST = np.zeros([broj_fold,ModelSTNo])
+time_ST = np.zeros([broj_fold,ModelSTNo])
+
 skf = KFold(n_splits = broj_fold)
 skf.get_n_splits(atribute, output)
 i = 0
@@ -156,13 +161,13 @@ for train_index,test_index in skf.split(atribute, output):
     y_train_com, Y_test = output.iloc[train_index,:], output.iloc[test_index,:] 
     x_train_un, x_train_st, y_train_un, Y_train = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
 
-
+    """ STRUCTURED PREDICTORS """
+    ACC_ST[i,:], HL_ST[i,:], time_ST[i,:] = Strukturni(x_train_com, y_train_com, x_test, Y_test)
     """ UNSTRUCTURED PREDICTORS """
     Skor_com_AUC[i,:], Skor_com_AUC2[i,:], Skor_com_ACC[i,:], Skor_com_ACC2[i,:], Skor_com_HL[i,:], R_train, R_test, R2, Noinst_train, Noinst_test, timeUN[i,:] = Nestrukturni_fun(x_train_un, y_train_un, x_train_st, Y_train, x_test, Y_test, No_class)
     """ STructured matrix """
     Se_train, Se_test = Struktura_fun(No_class,NoGraph, R2 , y_train_com, Noinst_train, Noinst_test)
-    """ STRUCTURED PREDICTORS """
-    aa = Strukturni(x_train_com, y_train_com, x_test, Y_test, Se_train, Se_test, No_class)
+
 
     
     """ Model GCRFC """
@@ -277,29 +282,31 @@ for train_index,test_index in skf.split(atribute, output):
     mod102 = GCRFC_fast()
     mod102.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixtureProb', clus_no = 250)  
     probBF82, YBF82, VarBF82 = mod102.predict(R_test,Se_test)  
-    timeBF82[i] = time.time() - start_time
-    
-    HLNB[i] = hamming_loss(Y_test,probNB)
-    HLB[i] = hamming_loss(Y_test,probB)
-    HLBF[i] = hamming_loss(Y_test,probBF)
-    HLBF2[i] = hamming_loss(Y_test,probBF2)
-    HLBF21[i] = hamming_loss(Y_test,probBF21)
-    HLBF22[i] = hamming_loss(Y_test,probBF22)
-    HLBF3[i] = hamming_loss(Y_test,probBF3)
-    HLBF4[i] = hamming_loss(Y_test,probBF4)
-    HLBF41[i] = hamming_loss(Y_test,probBF41)
-    HLBF42[i] = hamming_loss(Y_test,probBF42)
-    HLBF5[i] = hamming_loss(Y_test,probBF5)
-    HLBF6[i] = hamming_loss(Y_test,probBF6)
-    HLBF61[i] = hamming_loss(Y_test,probBF61)
-    HLBF62[i] = hamming_loss(Y_test,probBF62)
-    HLBF7[i] = hamming_loss(Y_test,probBF7)
-    HLBF8[i] = hamming_loss(Y_test,probBF8)
-    HLBF81[i] = hamming_loss(Y_test,probBF81)
-    HLBF82[i] = hamming_loss(Y_test,probBF82)    
+    timeBF82[i] = time.time() - start_time   
        
-    Y_test = Y_test.reshape([Y_test.shape[0]*Y_test.shape[1]])
     
+    
+    HLNB[i] = hamming_loss(Y_test,YNB)
+    HLB[i] = hamming_loss(Y_test,YB)
+    HLBF[i] = hamming_loss(Y_test,YBF)
+    HLBF2[i] = hamming_loss(Y_test,YBF2)
+    HLBF21[i] = hamming_loss(Y_test,YBF21)
+    HLBF22[i] = hamming_loss(Y_test,YBF22)
+    HLBF3[i] = hamming_loss(Y_test,YBF3)
+    HLBF4[i] = hamming_loss(Y_test,YBF4)
+    HLBF41[i] = hamming_loss(Y_test,YBF41)
+    HLBF42[i] = hamming_loss(Y_test,YBF42)
+    HLBF5[i] = hamming_loss(Y_test,YBF5)
+    HLBF6[i] = hamming_loss(Y_test,YBF6)
+    HLBF61[i] = hamming_loss(Y_test,YBF61)
+    HLBF62[i] = hamming_loss(Y_test,YBF62)
+    HLBF7[i] = hamming_loss(Y_test,YBF7)
+    HLBF8[i] = hamming_loss(Y_test,YBF8)
+    HLBF81[i] = hamming_loss(Y_test,YBF81)
+    HLBF82[i] = hamming_loss(Y_test,YBF82) 
+    
+    
+    Y_test = Y_test.reshape([Y_test.shape[0]*Y_test.shape[1]])
     YNB =  YNB.reshape([YNB.shape[0]*YNB.shape[1]])
     probNB = probNB.reshape([probNB.shape[0]*probNB.shape[1]])
     YB =  YB.reshape([YB.shape[0]*YB.shape[1]])
@@ -336,6 +343,7 @@ for train_index,test_index in skf.split(atribute, output):
     probBF81 = probBF81.reshape([probBF81.shape[0]*probBF81.shape[1]])
     YBF82 =  YBF82.reshape([YBF82.shape[0]*YBF82.shape[1]])
     probBF82 = probBF82.reshape([probBF82.shape[0]*probBF82.shape[1]])
+    
     
     AUCNB[i] = roc_auc_score(Y_test,probNB)
     AUCB[i] = roc_auc_score(Y_test,probB)
@@ -577,11 +585,14 @@ file.write('CROSS HL GCRFCB82_fast prediktora je {}'.format(np.mean(HLBF82)) + "
 
 file.write('CROSS ACC nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_ACC,axis=0)) + "\n")
 file.write('CROSS ACC2 nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_ACC2,axis=0)) + "\n")
+file.write('CROSS ACC strukturnih prediktora je {}'.format(np.mean(ACC_ST,axis=0)) + "\n")
+
 
 file.write('CROSS AUC nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_AUC,axis=0)) + "\n")
 file.write('CROSS AUC2 nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_AUC2,axis=0)) + "\n")
 
 file.write('CROSS HL nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_HL,axis=0)) + "\n")
+file.write('CROSS HL strukturnih prediktora je {}'.format(np.mean(HL_ST,axis=0)) + "\n")
 
 
 file.write('CROSS Logprob GCRFCNB je {}'.format(np.mean(logProbNB)) + "\n")
@@ -621,7 +632,9 @@ file.write("--- %s seconds mean --- GCRFCB7_fast" % (np.sum(timeBF7)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB8_fast" % (np.sum(timeBF8)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB81_fast" % (np.sum(timeBF81)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB82_fast" % (np.sum(timeBF82)) + "\n")
-file.write("--- %s seconds mean --- GCRFCB82_fast" % (np.sum(timeUN,axis = 0)) + "\n")   
+file.write("--- %s seconds mean --- UNSTRUCTURED" % (np.sum(timeUN,axis = 0)) + "\n")   
+file.write("--- %s seconds mean --- Strukturni" % (np.sum(time_ST,axis = 0)) + "\n")   
+
 
 file.close()
 

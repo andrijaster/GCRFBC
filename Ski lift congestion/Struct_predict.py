@@ -20,22 +20,10 @@ def Strukturni(x_train, y_train, x_test, y_test):
     
     from pystruct.learners import OneSlackSSVM
     from pystruct.models import MultiLabelClf
-#    from pystruct.models import GraphCRF
+    from pystruct.models import GraphCRF
     from sklearn.neural_network import MLPClassifier
     from sklearn.tree import DecisionTreeClassifier
-
     
-    
-    x_train = x_train.values
-    y_train = y_train.values
-    y_test = y_test.values
-    x_test = x_test.values
-    
-    
-    """ CRF chain """
-    
-    """ SSVM, MLP - pystruct """
-    """CREATE DATASET FOR GNN """
     def chow_liu_tree(y_):
         n_labels = y_.shape[1]
         mi = np.zeros((n_labels, n_labels))
@@ -47,22 +35,44 @@ def Strukturni(x_train, y_train, x_test, y_test):
         edges.sort(axis=1)
         return edges
     
+    x_train = x_train.values
+    y_train = y_train.values
+    y_test = y_test.values
+    x_test = x_test.values
+    
     n_labels = y_train.shape[1]
+    
     full = np.vstack([x for x in itertools.combinations(range(n_labels), 2)])
     tree = chow_liu_tree(y_train)
+        
+    """ CRF chain """
+    train_tree = []
+    train_full = []
+    for k in range(y_train.shape[0]):        
+        X_train_CRF = np.zeros([y_train.shape[0], 18])
+        for i in range(y_train.shape[1]):
+            kolone = np.array([x for x in range(i*18,18*(i+1))])
+            X_train_CRF[i,:] = x_train[k,kolone] 
+        train_tree.append((X_train_CRF.copy(), tree.T))
+        train_full.append((X_train_CRF.copy(), full.T))
+    aa = 2
+            
+    """ SSVM, MLP, CRF-graph - pystruct """
+    """CREATE DATASET FOR GNN """  
     
     """ Define models """
     full_model = MultiLabelClf(edges=full)
     independent_model = MultiLabelClf()
     tree_model = MultiLabelClf(edges=tree, inference_method='maxmax-product')
     
+    
     """ Define learn algorithm """
     full_ssvm = OneSlackSSVM(full_model, inference_cache=50, C=.1, tol=0.01, max_iter=150)
     tree_ssvm = OneSlackSSVM(tree_model, inference_cache=50, C=.1, tol=0.01, max_iter=150)
     independent_ssvm = OneSlackSSVM(independent_model, C=.1, tol=0.01, max_iter=150)
-    
     MLP = MLPClassifier()
     DT = DecisionTreeClassifier()
+    
     
     """ Fit models """
     

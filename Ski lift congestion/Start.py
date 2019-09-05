@@ -7,8 +7,8 @@ Created on Wed Oct 24 08:20:07 2018
 
 import time
 import numpy as np
-import pandas as pd
 import warnings
+import pandas as pd
 warnings.filterwarnings('ignore')
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
@@ -17,6 +17,7 @@ from sklearn.metrics import hamming_loss
 from sklearn.model_selection import KFold
 
 from Nestrukturni import Nestrukturni_fun
+from Struct_predict import Strukturni
 from Struktura import Struktura_fun 
 from GCRFCNB import GCRFCNB
 from GCRFC import GCRFC
@@ -28,6 +29,7 @@ from GCRFC_fast import GCRFC_fast
 No_class = 7
 NoGraph = 6
 ModelUNNo = 4
+ModelSTNo = 5
 testsize2 = 0.2
 broj_fold = 10
 iteracija = 400
@@ -139,6 +141,10 @@ atribute = atribute.drop('date1',axis =1)
 output = pd.read_csv('output')
 output = output.drop('date1',axis =1)
 
+ACC_ST = np.zeros([broj_fold,ModelSTNo])
+HL_ST = np.zeros([broj_fold,ModelSTNo])
+time_ST = np.zeros([broj_fold,ModelSTNo])
+
 skf = KFold(n_splits = broj_fold)
 skf.get_n_splits(atribute, output)
 i = 0
@@ -151,11 +157,13 @@ for train_index,test_index in skf.split(atribute, output):
     y_train_com, Y_test = output.iloc[train_index,:], output.iloc[test_index,:] 
     x_train_un, x_train_st, y_train_un, Y_train = train_test_split(x_train_com, y_train_com, test_size=testsize2, random_state=31)
     
+    """ STRUCTURED PREDICTORS """
+    ACC_ST[i,:], HL_ST[i,:], time_ST[i,:] = Strukturni(x_train_com, y_train_com, x_test, Y_test)
     """ Unstructured predictors """
     Skor_com_AUC[i,:], Skor_com_AUC2[i,:], Skor_com_ACC[i,:], Skor_com_ACC2[i,:], Skor_com_HL[i,:], R_train, R_test, R2, Noinst_train, Noinst_test, timeUN[i,:] = Nestrukturni_fun(x_train_un, y_train_un, x_train_st, Y_train, x_test, Y_test, No_class)
-    
     """Structure matrix """
     Se_train, Se_test = Struktura_fun(No_class,NoGraph,R2, train_index, test_index, Noinst_train, Noinst_test, testsize2)
+
     
     
     """ Model GCRFC """
@@ -571,11 +579,15 @@ file.write('CROSS HL GCRFCB82_fast prediktora je {}'.format(np.mean(HLBF82)) + "
 
 file.write('CROSS ACC nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_ACC,axis=0)) + "\n")
 file.write('CROSS ACC2 nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_ACC2,axis=0)) + "\n")
+file.write('CROSS ACC strukturnih prediktora je {}'.format(np.mean(ACC_ST,axis=0)) + "\n")
+
 
 file.write('CROSS AUC nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_AUC,axis=0)) + "\n")
 file.write('CROSS AUC2 nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_AUC2,axis=0)) + "\n")
 
 file.write('CROSS HL nestruktuiranih prediktora je {}'.format(np.mean(Skor_com_HL,axis=0)) + "\n")
+file.write('CROSS HL strukturnih prediktora je {}'.format(np.mean(HL_ST,axis=0)) + "\n")
+
 
 
 file.write('CROSS Logprob GCRFCNB je {}'.format(np.mean(logProbNB)) + "\n")
@@ -615,7 +627,8 @@ file.write("--- %s seconds mean --- GCRFCB7_fast" % (np.sum(timeBF7)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB8_fast" % (np.sum(timeBF8)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB81_fast" % (np.sum(timeBF81)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB82_fast" % (np.sum(timeBF82)) + "\n")
-file.write("--- %s seconds mean --- GCRFCB82_fast" % (np.sum(timeUN,axis = 0)) + "\n")   
+file.write("--- %s seconds mean --- UNSTRUCTURED" % (np.sum(timeUN,axis = 0)) + "\n")   
+file.write("--- %s seconds mean --- Strukturni" % (np.sum(time_ST,axis = 0)) + "\n")   
 
 file.close()
 
