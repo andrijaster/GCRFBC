@@ -54,7 +54,7 @@ def Strukturni(x_train, y_train, x_test, y_test):
     """ Define models """
     full_model = MultiLabelClf(edges=full)
     independent_model = MultiLabelClf()
-    tree_model = MultiLabelClf(edges=tree, inference_method='maxmax-product')
+    tree_model = MultiLabelClf(edges=tree, inference_method='max-product')
     
     """ Define learn algorithm """
     full_ssvm = OneSlackSSVM(full_model, inference_cache=50, C=.1, tol=0.01, max_iter=150)
