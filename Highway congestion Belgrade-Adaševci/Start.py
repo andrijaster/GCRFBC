@@ -32,7 +32,7 @@ NoGraph = 4
 ModelUNNo = 4
 ModelSTNo = 5
 testsize2 = 0.2
-broj_fold = 5
+broj_fold = 4
 iteracija = 400
 
 output = output.iloc[:,:No_class]
