@@ -11,7 +11,7 @@ from sklearn.utils import shuffle
 
 
 df = pd.read_csv("df_guzve.csv", header = 0, index_col = 0)
-#df = shuffle(df)
+df = shuffle(df)
 
 atribute = df.iloc[:,:-6]
 output = df.iloc[:,-6:]
