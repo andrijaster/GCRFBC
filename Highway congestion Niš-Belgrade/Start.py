@@ -30,7 +30,7 @@ from Putevi_dataset import output, atribute
 No_class = 18
 NoGraph = 4
 ModelUNNo = 4
-ModelSTNo = 5
+ModelSTNo = 7
 testsize2 = 0.2
 broj_fold = 10
 iteracija = 400

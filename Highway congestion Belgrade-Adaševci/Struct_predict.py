@@ -44,7 +44,7 @@ def Strukturni(x_train, y_train, x_test, y_test):
     y_test = y_test.astype(int)
     x_test = x_test.values
     
-    time_ST = np.zeros(5)
+    time_ST = np.zeros(7)
     HL = np.zeros(7)
     ACC = np.zeros(7)
     

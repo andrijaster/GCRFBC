@@ -29,7 +29,7 @@ from GCRFC_fast import GCRFC_fast
 No_class = 7
 NoGraph = 6
 ModelUNNo = 4
-ModelSTNo = 5
+ModelSTNo = 7
 testsize2 = 0.2
 broj_fold = 10
 iteracija = 400
