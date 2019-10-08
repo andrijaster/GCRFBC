@@ -28,6 +28,9 @@ time_3 = np.zeros([duzina,duzina])
 AUC_1 = np.zeros([duzina,duzina])
 AUC_2 = np.zeros([duzina,duzina])
 AUC_3 = np.zeros([duzina,duzina])
+LogPRob_1 = np.zeros([duzina,duzina])
+LogPRob_2 = np.zeros([duzina,duzina])
+LogPRob_3 = np.zeros([duzina,duzina])
 
 
 
@@ -62,29 +65,24 @@ for i in rang:
         mod1.alfa = np.array([i])
         mod1.beta = np.array([j])
         
-        prob, Y, Var = mod1.predict(R,Se)
+        prob, Y, _ = mod1.predict(R,Se)
         
         Y_test = Y[Notrain:Noinst,:]
         Y_train = Y[:Notrain,:]
         
         
         start_time = time.time()
-        mod1.fit(R_train, Se_train, Y_train, learn = 'TNC',maxiter = 20000)  
+        mod1.fit(R_train, Se_train, Y_train, learn = 'TNC',maxiter = 500)  
         prob_1, Y_1, Var[k1,k2] = mod1.predict(R_test,Se_test)
         time_1[k1,k2] = start_time - time.time()
         
-        mod2.fit(R_train, Se_train, Y_train, learn = 'TNC',maxiter = 20000)  
+        mod2.fit(R_train, Se_train, Y_train, learn = 'TNC',maxiter = 500)  
         prob_2, Y_2 = mod2.predict(R_test,Se_test)
         time_2[k1,k2] = start_time - time.time()
         
-        mod3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = 20000,method_clus = 'MiniBatchKMeans', clus_no = 5)
+        mod3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = 500,method_clus = 'MiniBatchKMeans', clus_no = 5)
         prob_3, Y_3, Var_3[k1,k2] = mod3.predict(R_test,Se_test)
-        time_3[k1,k2] = start_time - time.time()
-                               
-        prob_1, Y_1, Var = mod1.predict(R_test,Se_test)
-        prob_2, Y_2 = mod2.predict(R_test,Se_test)
-        prob_3, Y_3, Var_3 = mod3.predict(R_test,Se_test)
-        
+        time_3[k1,k2] = start_time - time.time()       
         
         Prob_1 = prob_1.copy()
         Prob_1[Y_1==0] = 1 - Prob_1[Y_1==0]  
@@ -106,6 +104,10 @@ for i in rang:
         AUC_1[k1,k2] = roc_auc_score(Y_test1,probr_1)
         AUC_2[k1,k2] = roc_auc_score(Y_test1,probr_2)
         AUC_3[k1,k2] = roc_auc_score(Y_test1,probr_3)
+        LogPRob_1[k1,k2] = np.sum(np.log(Probr_1))
+        LogPRob_2[k1,k2] = np.sum(np.log(Probr_2))
+        LogPRob_3[k1,k2] = np.sum(np.log(Probr_3))
+        
         
         k2+=1
     k1+=1
