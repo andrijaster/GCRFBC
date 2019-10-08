@@ -107,7 +107,7 @@ class GCRFC:
 #                else:
 #                Prob[p,i] = GCRFC.sigmaCalPRED(mu[p,i])
                 Clas[p,i]=np.round(Prob[p,i], 0)
-        print(np.linalg.norm(Var))
+        print('Norma je {}'.format(np.linalg.norm(Var)))
         self.Prob = Prob
         self.Class = Clas
         return self.Prob, self.Class, Var
