@@ -29,7 +29,7 @@ from Pediatric_dataset import output, atribute
 No_class = 10
 NoGraph = 4
 ModelUNNo = 4
-ModelSTNo = 5
+ModelSTNo = 2
 testsize2 = 0.2
 broj_fold = 10
 iteracija = 400
@@ -39,6 +39,18 @@ output = output.iloc[:,:No_class]
 AUCNB = np.zeros(broj_fold)
 AUCB = np.zeros(broj_fold)
 AUCBF = np.zeros(broj_fold)
+AUCBF3_1 = np.zeros(broj_fold)
+AUCBF3_2 = np.zeros(broj_fold)
+AUCBF3_3 = np.zeros(broj_fold)
+AUCBF5_1 = np.zeros(broj_fold)
+AUCBF5_2 = np.zeros(broj_fold)
+AUCBF5_3 = np.zeros(broj_fold)
+AUCBF7_1 = np.zeros(broj_fold)
+AUCBF7_2 = np.zeros(broj_fold)
+AUCBF7_3 = np.zeros(broj_fold)
+AUCBF9_1 = np.zeros(broj_fold)
+AUCBF9_2 = np.zeros(broj_fold)
+AUCBF9_3 = np.zeros(broj_fold)
 AUCBF2 = np.zeros(broj_fold)
 AUCBF21 = np.zeros(broj_fold)
 AUCBF22 = np.zeros(broj_fold)
@@ -58,6 +70,18 @@ AUCBF82 = np.zeros(broj_fold)
 ACCNB = np.zeros(broj_fold)
 ACCB = np.zeros(broj_fold)
 ACCBF = np.zeros(broj_fold)
+ACCBF3_1 = np.zeros(broj_fold)
+ACCBF3_2 = np.zeros(broj_fold)
+ACCBF3_3 = np.zeros(broj_fold)
+ACCBF5_1 = np.zeros(broj_fold)
+ACCBF5_2 = np.zeros(broj_fold)
+ACCBF5_3 = np.zeros(broj_fold)
+ACCBF7_1 = np.zeros(broj_fold)
+ACCBF7_2 = np.zeros(broj_fold)
+ACCBF7_3 = np.zeros(broj_fold)
+ACCBF9_1 = np.zeros(broj_fold)
+ACCBF9_2 = np.zeros(broj_fold)
+ACCBF9_3 = np.zeros(broj_fold)
 ACCBF2 = np.zeros(broj_fold)
 ACCBF21 = np.zeros(broj_fold)
 ACCBF22 = np.zeros(broj_fold)
@@ -115,6 +139,18 @@ logProbBF82 = np.zeros(broj_fold)
 timeNB = np.zeros(broj_fold)
 timeB = np.zeros(broj_fold)
 timeBF = np.zeros(broj_fold)
+timeBF3_1 = np.zeros(broj_fold)
+timeBF3_2 = np.zeros(broj_fold)
+timeBF3_3 = np.zeros(broj_fold)
+timeBF5_1 = np.zeros(broj_fold)
+timeBF5_2 = np.zeros(broj_fold)
+timeBF5_3 = np.zeros(broj_fold)
+timeBF7_1 = np.zeros(broj_fold)
+timeBF7_2 = np.zeros(broj_fold)
+timeBF7_3 = np.zeros(broj_fold)
+timeBF9_1 = np.zeros(broj_fold)
+timeBF9_2 = np.zeros(broj_fold)
+timeBF9_3 = np.zeros(broj_fold)
 timeBF2 = np.zeros(broj_fold)
 timeBF21 = np.zeros(broj_fold)
 timeBF22 = np.zeros(broj_fold)
@@ -178,7 +214,24 @@ for train_index,test_index in skf.split(atribute, output):
     mod1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 6e-4, maxiter = iteracija)  
     probNB, YNB = mod1.predict(R_test,Se_test)
     timeNB[i] = time.time() - start_time
+
+    start_time = time.time()
+    mod3_1 = GCRFC_fast()
+    mod3_1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'KMeans', clus_no = 2)    
+    probBF3_1, YBF3_1, VarBF3_1 = mod3_1.predict(R_test,Se_test)
+    timeBF3_1[i] = time.time() - start_time 
     
+    start_time = time.time()
+    mod3_2 = GCRFC_fast()
+    mod3_2.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'KMeans', clus_no = 3)    
+    probBF3_2, YBF3_2, VarBF3_2 = mod3_2.predict(R_test,Se_test)
+    timeBF3_2[i] = time.time() - start_time 
+
+    start_time = time.time()
+    mod3_3 = GCRFC_fast()
+    mod3_3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'KMeans', clus_no = 4)    
+    probBF3_3, YBF3_3, VarBF3_3 = mod3_3.predict(R_test,Se_test)
+    timeBF3_3[i] = time.time() - start_time 
     
     start_time = time.time()
     mod2 = GCRFC()
@@ -218,6 +271,24 @@ for train_index,test_index in skf.split(atribute, output):
     timeBF3[i] = time.time() - start_time
     
     start_time = time.time()
+    mod5_1 = GCRFC_fast()
+    mod5_1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'MiniBatchKMeans', clus_no = 2)    
+    probBF5_1, YBF5_1, VarBF5_1 = mod5_1.predict(R_test,Se_test)
+    timeBF5_1[i] = time.time() - start_time 
+    
+    start_time = time.time()
+    mod5_2 = GCRFC_fast()
+    mod5_2.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'MiniBatchKMeans', clus_no = 3)    
+    probBF5_2, YBF5_2, VarBF5_2 = mod5_2.predict(R_test,Se_test)
+    timeBF5_2[i] = time.time() - start_time 
+
+    start_time = time.time()
+    mod5_3 = GCRFC_fast()
+    mod5_3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'MiniBatchKMeans', clus_no = 4)    
+    probBF5_3, YBF5_3, VarBF5_3 = mod5_3.predict(R_test,Se_test)
+    timeBF5_3[i] = time.time() - start_time 
+    
+    start_time = time.time()
     mod6 = GCRFC_fast()
     mod6.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'MiniBatchKMeans', clus_no = 50)  
     probBF4, YBF4, VarBF4 = mod6.predict(R_test,Se_test)  
@@ -242,6 +313,24 @@ for train_index,test_index in skf.split(atribute, output):
     timeBF5[i] = time.time() - start_time
     
     start_time = time.time()
+    mod7_1 = GCRFC_fast()
+    mod7_1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'GaussianMixture', clus_no = 2)    
+    probBF7_1, YBF7_1, VarBF7_1 = mod7_1.predict(R_test,Se_test)
+    timeBF7_1[i] = time.time() - start_time 
+    
+    start_time = time.time()
+    mod7_2 = GCRFC_fast()
+    mod7_2.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'GaussianMixture', clus_no = 3)    
+    probBF7_2, YBF7_2, VarBF7_2 = mod7_2.predict(R_test,Se_test)
+    timeBF7_2[i] = time.time() - start_time 
+
+    start_time = time.time()
+    mod7_3 = GCRFC_fast()
+    mod7_3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'GaussianMixture', clus_no = 4)    
+    probBF7_3, YBF7_3, VarBF7_3 = mod7_3.predict(R_test,Se_test)
+    timeBF7_3[i] = time.time() - start_time 
+    
+    start_time = time.time()
     mod8 = GCRFC_fast()
     mod8.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixture', clus_no = 50)  
     probBF6, YBF6, VarBF6 = mod8.predict(R_test,Se_test)  
@@ -264,6 +353,24 @@ for train_index,test_index in skf.split(atribute, output):
     mod9.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija,method_clus = 'GaussianMixtureProb', clus_no = 5)  
     probBF7, YBF7, VarBF7 = mod9.predict(R_test,Se_test)  
     timeBF7[i] = time.time() - start_time
+    
+    start_time = time.time()
+    mod9_1 = GCRFC_fast()
+    mod9_1.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'GaussianMixtureProb', clus_no = 2)    
+    probBF9_1, YBF9_1, VarBF9_1 = mod9_1.predict(R_test,Se_test)
+    timeBF9_1[i] = time.time() - start_time 
+    
+    start_time = time.time()
+    mod9_2 = GCRFC_fast()
+    mod9_2.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'GaussianMixtureProb', clus_no = 3)    
+    probBF9_2, YBF9_2, VarBF9_2 = mod9_2.predict(R_test,Se_test)
+    timeBF9_2[i] = time.time() - start_time 
+
+    start_time = time.time()
+    mod9_3 = GCRFC_fast()
+    mod9_3.fit(R_train, Se_train, Y_train, learn = 'TNC', learnrate = 3e-4, learnratec = 0.5, maxiter = iteracija, method_clus = 'GaussianMixtureProb', clus_no = 4)    
+    probBF9_3, YBF9_3, VarBF9_3 = mod9_3.predict(R_test,Se_test)
+    timeBF9_3[i] = time.time() - start_time 
     
     start_time = time.time()
     mod10 = GCRFC_fast()
@@ -317,7 +424,13 @@ for train_index,test_index in skf.split(atribute, output):
     YBF22 =  YBF22.reshape([YBF22.shape[0]*YBF22.shape[1]])
     probBF22 = probBF22.reshape([probBF22.shape[0]*probBF22.shape[1]])
     YBF3 =  YBF3.reshape([YBF3.shape[0]*YBF3.shape[1]])
-    probBF3 = probBF2.reshape([probBF3.shape[0]*probBF3.shape[1]])
+    probBF3 = probBF3.reshape([probBF3.shape[0]*probBF3.shape[1]])    
+    YBF3_1 =  YBF3_1.reshape([YBF3_1.shape[0]*YBF3_1.shape[1]])
+    probBF3_1 = probBF3_1.reshape([probBF3_1.shape[0]*probBF3_1.shape[1]])
+    YBF3_2 =  YBF3_2.reshape([YBF3_2.shape[0]*YBF3_2.shape[1]])
+    probBF3_2 = probBF3_2.reshape([probBF3_2.shape[0]*probBF3_2.shape[1]])
+    YBF3_3 =  YBF3_3.reshape([YBF3_3.shape[0]*YBF3_3.shape[1]])
+    probBF3_3 = probBF3_3.reshape([probBF3_3.shape[0]*probBF3_3.shape[1]])
     YBF4 =  YBF4.reshape([YBF4.shape[0]*YBF4.shape[1]])
     probBF4 = probBF4.reshape([probBF4.shape[0]*probBF4.shape[1]])
     YBF41 =  YBF41.reshape([YBF41.shape[0]*YBF41.shape[1]])
@@ -325,6 +438,12 @@ for train_index,test_index in skf.split(atribute, output):
     YBF42 =  YBF42.reshape([YBF42.shape[0]*YBF42.shape[1]])
     probBF42 = probBF42.reshape([probBF42.shape[0]*probBF42.shape[1]])
     YBF5 =  YBF5.reshape([YBF5.shape[0]*YBF5.shape[1]])
+    YBF5_1 =  YBF5_1.reshape([YBF5_1.shape[0]*YBF5_1.shape[1]])
+    probBF5_1 = probBF5_1.reshape([probBF5_1.shape[0]*probBF5_1.shape[1]])
+    YBF5_2 =  YBF5_2.reshape([YBF5_2.shape[0]*YBF5_2.shape[1]])
+    probBF5_2 = probBF5_2.reshape([probBF5_2.shape[0]*probBF5_2.shape[1]])
+    YBF5_3 =  YBF5_3.reshape([YBF5_3.shape[0]*YBF5_3.shape[1]])
+    probBF5_3 = probBF5_3.reshape([probBF5_3.shape[0]*probBF5_3.shape[1]])
     probBF5 = probBF5.reshape([probBF5.shape[0]*probBF5.shape[1]])
     YBF6 =  YBF6.reshape([YBF6.shape[0]*YBF6.shape[1]])
     probBF6 = probBF6.reshape([probBF6.shape[0]*probBF6.shape[1]])
@@ -334,12 +453,24 @@ for train_index,test_index in skf.split(atribute, output):
     probBF62 = probBF62.reshape([probBF62.shape[0]*probBF62.shape[1]])
     YBF7 =  YBF7.reshape([YBF7.shape[0]*YBF7.shape[1]])
     probBF7 = probBF7.reshape([probBF7.shape[0]*probBF7.shape[1]])
+    YBF7_1 =  YBF7_1.reshape([YBF7_1.shape[0]*YBF7_1.shape[1]])
+    probBF7_1 = probBF7_1.reshape([probBF7_1.shape[0]*probBF7_1.shape[1]])
+    YBF7_2 =  YBF7_2.reshape([YBF7_2.shape[0]*YBF7_2.shape[1]])
+    probBF7_2 = probBF7_2.reshape([probBF7_2.shape[0]*probBF7_2.shape[1]])
+    YBF7_3 =  YBF7_3.reshape([YBF7_3.shape[0]*YBF7_3.shape[1]])
+    probBF7_3 = probBF7_3.reshape([probBF7_3.shape[0]*probBF7_3.shape[1]])
     YBF8 =  YBF8.reshape([YBF8.shape[0]*YBF8.shape[1]])
     probBF8 = probBF8.reshape([probBF8.shape[0]*probBF8.shape[1]])
     YBF81 =  YBF81.reshape([YBF81.shape[0]*YBF81.shape[1]])
     probBF81 = probBF81.reshape([probBF81.shape[0]*probBF81.shape[1]])
     YBF82 =  YBF82.reshape([YBF82.shape[0]*YBF82.shape[1]])
     probBF82 = probBF82.reshape([probBF82.shape[0]*probBF82.shape[1]])
+    YBF9_1 =  YBF9_1.reshape([YBF9_1.shape[0]*YBF9_1.shape[1]])
+    probBF9_1 = probBF9_1.reshape([probBF9_1.shape[0]*probBF9_1.shape[1]])
+    YBF9_2 =  YBF9_2.reshape([YBF9_2.shape[0]*YBF9_2.shape[1]])
+    probBF9_2 = probBF9_2.reshape([probBF9_2.shape[0]*probBF9_2.shape[1]])
+    YBF9_3 =  YBF9_3.reshape([YBF9_3.shape[0]*YBF9_3.shape[1]])
+    probBF9_3 = probBF9_3.reshape([probBF9_3.shape[0]*probBF9_3.shape[1]])
     
     AUCNB[i] = roc_auc_score(Y_test,probNB)
     AUCB[i] = roc_auc_score(Y_test,probB)
@@ -348,17 +479,29 @@ for train_index,test_index in skf.split(atribute, output):
     AUCBF21[i] = roc_auc_score(Y_test,probBF21)
     AUCBF22[i] = roc_auc_score(Y_test,probBF22)
     AUCBF3[i] = roc_auc_score(Y_test,probBF3)
+    AUCBF3_1[i] = roc_auc_score(Y_test,probBF3_1)
+    AUCBF3_2[i] = roc_auc_score(Y_test,probBF3_2)
+    AUCBF3_3[i] = roc_auc_score(Y_test,probBF3_3)
     AUCBF4[i] = roc_auc_score(Y_test,probBF4)
     AUCBF41[i] = roc_auc_score(Y_test,probBF41)
     AUCBF42[i] = roc_auc_score(Y_test,probBF42)
     AUCBF5[i] = roc_auc_score(Y_test,probBF5)
+    AUCBF5_1[i] = roc_auc_score(Y_test,probBF5_1)
+    AUCBF5_2[i] = roc_auc_score(Y_test,probBF5_2)
+    AUCBF5_3[i] = roc_auc_score(Y_test,probBF5_3)
     AUCBF6[i] = roc_auc_score(Y_test,probBF6)
     AUCBF61[i] = roc_auc_score(Y_test,probBF61)
     AUCBF62[i] = roc_auc_score(Y_test,probBF62)
     AUCBF7[i] = roc_auc_score(Y_test,probBF7)
+    AUCBF7_1[i] = roc_auc_score(Y_test,probBF7_1)
+    AUCBF7_2[i] = roc_auc_score(Y_test,probBF7_2)
+    AUCBF7_3[i] = roc_auc_score(Y_test,probBF7_3)
     AUCBF8[i] = roc_auc_score(Y_test,probBF8)
     AUCBF81[i] = roc_auc_score(Y_test,probBF81)
     AUCBF82[i] = roc_auc_score(Y_test,probBF82)
+    AUCBF7_1[i] = roc_auc_score(Y_test,probBF9_1)
+    AUCBF7_2[i] = roc_auc_score(Y_test,probBF9_2)
+    AUCBF7_3[i] = roc_auc_score(Y_test,probBF9_3)
     
     ACCNB[i] = accuracy_score(Y_test,YNB)
     ACCB[i] = accuracy_score(Y_test,YB)
@@ -367,17 +510,29 @@ for train_index,test_index in skf.split(atribute, output):
     ACCBF21[i] = accuracy_score(Y_test,YBF21)
     ACCBF22[i] = accuracy_score(Y_test,YBF22)
     ACCBF3[i] = accuracy_score(Y_test,YBF3)
+    ACCBF3_1[i] = accuracy_score(Y_test,YBF3_1)
+    ACCBF3_2[i] = accuracy_score(Y_test,YBF3_2)
+    ACCBF3_3[i] = accuracy_score(Y_test,YBF3_3)
     ACCBF4[i] = accuracy_score(Y_test,YBF4)
     ACCBF41[i] = accuracy_score(Y_test,YBF41)
     ACCBF42[i] = accuracy_score(Y_test,YBF42)
     ACCBF5[i] = accuracy_score(Y_test,YBF5)
+    ACCBF5_1[i] = accuracy_score(Y_test,YBF5_1)
+    ACCBF5_2[i] = accuracy_score(Y_test,YBF5_2)
+    ACCBF5_3[i] = accuracy_score(Y_test,YBF5_3)
     ACCBF6[i] = accuracy_score(Y_test,YBF6)
     ACCBF61[i] = accuracy_score(Y_test,YBF61)
     ACCBF62[i] = accuracy_score(Y_test,YBF62)
     ACCBF7[i] = accuracy_score(Y_test,YBF7)
+    ACCBF7_1[i] = accuracy_score(Y_test,YBF7_1)
+    ACCBF7_2[i] = accuracy_score(Y_test,YBF7_2)
+    ACCBF7_3[i] = accuracy_score(Y_test,YBF7_3)
     ACCBF8[i] = accuracy_score(Y_test,YBF8)
     ACCBF81[i] = accuracy_score(Y_test,YBF81)
     ACCBF82[i] = accuracy_score(Y_test,YBF82)
+    ACCBF9_1[i] = accuracy_score(Y_test,YBF9_1)
+    ACCBF9_2[i] = accuracy_score(Y_test,YBF9_2)
+    ACCBF9_3[i] = accuracy_score(Y_test,YBF9_3)
     
     probNB[Y_test==0] = 1 - probNB[Y_test==0]
     probB[Y_test==0] = 1 - probNB[Y_test==0]
@@ -386,10 +541,16 @@ for train_index,test_index in skf.split(atribute, output):
     probBF21[Y_test==0] = 1 - probBF21[Y_test==0]
     probBF22[Y_test==0] = 1 - probBF22[Y_test==0]
     probBF3[Y_test==0] = 1 - probBF3[Y_test==0]
+    probBF3_1[Y_test==0] = 1 - probBF3_1[Y_test==0]
+    probBF3_2[Y_test==0] = 1 - probBF3_2[Y_test==0]
+    probBF3_3[Y_test==0] = 1 - probBF3_3[Y_test==0]
     probBF4[Y_test==0] = 1 - probBF4[Y_test==0]
     probBF41[Y_test==0] = 1 - probBF41[Y_test==0]
     probBF42[Y_test==0] = 1 - probBF42[Y_test==0]
     probBF5[Y_test==0] = 1 - probBF5[Y_test==0]
+    probBF5_1[Y_test==0] = 1 - probBF5_1[Y_test==0]
+    probBF5_2[Y_test==0] = 1 - probBF5_2[Y_test==0]
+    probBF5_3[Y_test==0] = 1 - probBF5_3[Y_test==0]
     probBF6[Y_test==0] = 1 - probBF6[Y_test==0]
     probBF61[Y_test==0] = 1 - probBF61[Y_test==0]
     probBF62[Y_test==0] = 1 - probBF62[Y_test==0]
@@ -397,6 +558,9 @@ for train_index,test_index in skf.split(atribute, output):
     probBF8[Y_test==0] = 1 - probBF8[Y_test==0]
     probBF81[Y_test==0] = 1 - probBF81[Y_test==0]
     probBF82[Y_test==0] = 1 - probBF82[Y_test==0]
+    probBF9_1[Y_test==0] = 1 - probBF9_1[Y_test==0]
+    probBF9_2[Y_test==0] = 1 - probBF9_2[Y_test==0]
+    probBF9_3[Y_test==0] = 1 - probBF9_3[Y_test==0]
     
     logProbNB[i] = np.sum(np.log(probNB))
     logProbB[i] = np.sum(np.log(probB))
@@ -528,7 +692,19 @@ file.write('CROSS AUC GCRFCB_fast prediktora je {}'.format(np.mean(AUCBF)) + "\n
 file.write('CROSS AUC GCRFCB2_fast prediktora je {}'.format(np.mean(AUCBF2)) + "\n")
 file.write('CROSS AUC GCRFCB21_fast prediktora je {}'.format(np.mean(AUCBF21)) + "\n")
 file.write('CROSS AUC GCRFCB22_fast prediktora je {}'.format(np.mean(AUCBF22)) + "\n")
-file.write('CROSS AUC GCRFCB3_fast prediktora je {}'.format(np.mean(AUCBF3)) + "\n")
+file.write('CROSS AUC GCRFCB3fast prediktora je {}'.format(np.mean(AUCBF3)) + "\n")
+file.write('CROSS AUC GCRFCB3_1fast prediktora je {}'.format(np.mean(AUCBF3_1)) + "\n")
+file.write('CROSS AUC GCRFCB3_2fast prediktora je {}'.format(np.mean(AUCBF3_2)) + "\n")
+file.write('CROSS AUC GCRFCB3_3fast prediktora je {}'.format(np.mean(AUCBF3_3)) + "\n")
+file.write('CROSS AUC GCRFCB5_1fast prediktora je {}'.format(np.mean(AUCBF5_1)) + "\n")
+file.write('CROSS AUC GCRFCB5_2fast prediktora je {}'.format(np.mean(AUCBF5_2)) + "\n")
+file.write('CROSS AUC GCRFCB5_3fast prediktora je {}'.format(np.mean(AUCBF5_3)) + "\n")
+file.write('CROSS AUC GCRFCB7_1fast prediktora je {}'.format(np.mean(AUCBF7_1)) + "\n")
+file.write('CROSS AUC GCRFCB7_2fast prediktora je {}'.format(np.mean(AUCBF7_2)) + "\n")
+file.write('CROSS AUC GCRFCB7_3fast prediktora je {}'.format(np.mean(AUCBF7_3)) + "\n")
+file.write('CROSS AUC GCRFCB9_1fast prediktora je {}'.format(np.mean(AUCBF9_1)) + "\n")
+file.write('CROSS AUC GCRFCB9_2fast prediktora je {}'.format(np.mean(AUCBF9_2)) + "\n")
+file.write('CROSS AUC GCRFCB9_3fast prediktora je {}'.format(np.mean(AUCBF9_3)) + "\n")
 file.write('CROSS AUC GCRFCB4_fast prediktora je {}'.format(np.mean(AUCBF4)) + "\n")
 file.write('CROSS AUC GCRFCB41_fast prediktora je {}'.format(np.mean(AUCBF41)) + "\n")
 file.write('CROSS AUC GCRFCB42_fast prediktora je {}'.format(np.mean(AUCBF42)) + "\n")
@@ -548,6 +724,18 @@ file.write('CROSS ACC GCRFCB2_fast prediktora je {}'.format(np.mean(ACCBF2)) + "
 file.write('CROSS ACC GCRFCB21_fast prediktora je {}'.format(np.mean(ACCBF21)) + "\n")
 file.write('CROSS ACC GCRFCB22_fast prediktora je {}'.format(np.mean(ACCBF22)) + "\n")
 file.write('CROSS ACC GCRFCB3_fast prediktora je {}'.format(np.mean(ACCBF3)) + "\n")
+file.write('CROSS ACC GCRFCB3_1fast prediktora je {}'.format(np.mean(ACCBF3_1)) + "\n")
+file.write('CROSS ACC GCRFCB3_2fast prediktora je {}'.format(np.mean(ACCBF3_2)) + "\n")
+file.write('CROSS ACC GCRFCB3_3fast prediktora je {}'.format(np.mean(ACCBF3_3)) + "\n")
+file.write('CROSS ACC GCRFCB5_1fast prediktora je {}'.format(np.mean(ACCBF5_1)) + "\n")
+file.write('CROSS ACC GCRFCB5_2fast prediktora je {}'.format(np.mean(ACCBF5_2)) + "\n")
+file.write('CROSS ACC GCRFCB5_3fast prediktora je {}'.format(np.mean(ACCBF5_3)) + "\n")
+file.write('CROSS ACC GCRFCB7_1fast prediktora je {}'.format(np.mean(ACCBF7_1)) + "\n")
+file.write('CROSS ACC GCRFCB7_2fast prediktora je {}'.format(np.mean(ACCBF7_2)) + "\n")
+file.write('CROSS ACC GCRFCB7_3fast prediktora je {}'.format(np.mean(ACCBF7_3)) + "\n")
+file.write('CROSS ACC GCRFCB9_1fast prediktora je {}'.format(np.mean(ACCBF9_1)) + "\n")
+file.write('CROSS ACC GCRFCB9_2fast prediktora je {}'.format(np.mean(ACCBF9_2)) + "\n")
+file.write('CROSS ACC GCRFCB9_3fast prediktora je {}'.format(np.mean(ACCBF9_3)) + "\n")
 file.write('CROSS ACC GCRFCB4_fast prediktora je {}'.format(np.mean(ACCBF4)) + "\n")
 file.write('CROSS ACC GCRFCB41_fast prediktora je {}'.format(np.mean(ACCBF41)) + "\n")
 file.write('CROSS ACC GCRFCB42_fast prediktora je {}'.format(np.mean(ACCBF42)) + "\n")
@@ -617,6 +805,18 @@ file.write("--- %s seconds mean --- GCRFCB2_fast" % (np.sum(timeBF2)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB21_fast" % (np.sum(timeBF21)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB22_fast" % (np.sum(timeBF22)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB3_fast" % (np.sum(timeBF3)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB3_1fast" % (np.sum(timeBF3_1)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB3_2fast" % (np.sum(timeBF3_2)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB3_3fast" % (np.sum(timeBF3_3)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB5_1fast" % (np.sum(timeBF5_1)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB5_2fast" % (np.sum(timeBF5_2)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB5_3fast" % (np.sum(timeBF5_3)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB7_1fast" % (np.sum(timeBF7_1)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB7_2fast" % (np.sum(timeBF7_2)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB7_3fast" % (np.sum(timeBF7_3)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB9_1fast" % (np.sum(timeBF9_1)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB9_2fast" % (np.sum(timeBF9_2)) + "\n")
+file.write("--- %s seconds mean --- GCRFCB9_3fast" % (np.sum(timeBF9_3)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB4_fast" % (np.sum(timeBF4)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB41_fast" % (np.sum(timeBF41)) + "\n")
 file.write("--- %s seconds mean --- GCRFCB42_fast" % (np.sum(timeBF42)) + "\n")
@@ -632,6 +832,3 @@ file.write("--- %s seconds mean --- UNSTRUCTURED" % (np.sum(timeUN,axis = 0)) + 
 file.write("--- %s seconds mean --- Strukturni" % (np.sum(time_ST,axis = 0)) + "\n")
 
 file.close()
-
-    
-    

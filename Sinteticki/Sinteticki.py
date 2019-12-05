@@ -7,6 +7,8 @@ Created on Tue Oct  8 12:29:06 2019
 
 import numpy as np
 import time
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
 from GCRFCNB import GCRFCNB
 from GCRFC import GCRFC
@@ -17,7 +19,7 @@ from GCRFC_fast import GCRFC_fast
 NoModelUN = 1
 NodeNo = 10
 NoGraph = 1
-rang = np.arange(1,30,3)
+rang = np.arange(1,31,3)
 duzina = len(rang)
 
 Var = np.zeros([duzina,duzina])
@@ -34,7 +36,7 @@ LogPRob_3 = np.zeros([duzina,duzina])
 
 
 
-R = np.random.rand(1200,NoModelUN)*2-1
+R = np.random.rand(1000,NoModelUN)*2-1
 
 Nopoint = R.shape[0]
 Noinst = np.round(Nopoint/NodeNo).astype(int)
@@ -111,12 +113,45 @@ for i in rang:
         
         k2+=1
     k1+=1
-#        print('AUC je {}'.format(AUC_1))
-#        print('LogPRob je {}'.format(np.sum(np.log(Probr_1))))
-#        print("--- %s seconds ---" % (time.time() - start_time))
-#        print('AUC je {}'.format(AUC_2))
-#        print('LogPRob je {}'.format(np.sum(np.log(Probr_2))))
-#        print("--- %s seconds ---" % (time.time() - start_time))
-#        print('AUC je {}'.format(AUC_3))
-#        print('LogPRob je {}'.format(np.sum(np.log(Probr_3))))
-#        print("--- %s seconds ---" % (time.time() - start_time))
+
+x_axis_labels = rang
+y_axis_labels = rang
+
+hmap_10 = np.abs(AUC_1-AUC_2)
+hmap_11 = np.abs(LogPRob_1-LogPRob_2)
+hmap_20 = np.abs(AUC_1-AUC_3)
+hmap_21 = np.abs(LogPRob_1-LogPRob_3)
+    
+figure1 = plt.figure(figsize=(8, 15))
+ax1 = plt.subplot(311)
+sns.heatmap(hmap_10, xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+ax1.set_ylabel(r'$\alpha$')
+#ax1.set_xlabel(r'$\beta$')
+ax1.set_title('a)')
+
+ax2 = plt.subplot(312)
+sns.heatmap(hmap_11, xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+ax2.set_ylabel(r'$\alpha$')
+#ax2.set_xlabel('$\beta$')
+ax2.set_title('b)')
+
+ax3 = plt.subplot(313)
+sns.heatmap(Var, xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+ax3.set_ylabel(r'$\alpha$')
+#ax3.set_xlabel(r'$\beta$')
+ax3.set_title('c)')
+
+figure2 = plt.figure(figsize=(8, 8))
+ax11 = plt.subplot(211) 
+sns.heatmap(hmap_20, xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+ax11.set_ylabel(r'$\alpha$')
+#ax11.set_xlabel('$\beta$')
+ax11.set_title("a)")
+    
+ax12 = plt.subplot(212) 
+sns.heatmap(hmap_21, xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+ax12.set_ylabel(r'$\alpha$')
+ax12.set_xlabel(r'$\beta$')
+ax12.set_title('b)')
+
+
